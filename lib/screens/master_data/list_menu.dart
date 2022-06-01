@@ -1,5 +1,6 @@
 import 'package:asik/screens/absensi_page.dart';
-import 'package:asik/screens/master_data/jabatan_master.dart';
+import 'package:asik/screens/master_data/jabatan/list.dart';
+import 'package:asik/screens/master_data/karyawan/list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -42,9 +43,9 @@ class ListMenuMaster extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _menuMasterData('Karyawan', 'Pengelolaan Data Karyawan', Icons.group, AbsenPage()),        
+          _menuMasterData('Karyawan', 'Pengelolaan Data Karyawan', Icons.group, ListKaryawan()),        
           Divider(),
-          _menuMasterData('Jabatan', 'Pengelolaan Data Jabatan', Icons.work, jabatanMaster()),
+          _menuMasterData('Jabatan', 'Pengelolaan Data Jabatan', Icons.work, ListJabatan()),
           Divider(),
           _menuMasterData('Cuti Bersama', 'Pengelolaan Data Cuti Bersama', Icons.time_to_leave, AbsenPage()),
           Divider(),
