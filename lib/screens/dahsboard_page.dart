@@ -133,7 +133,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     Text('$username'.toUpperCase(),
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.w600)),
-                    Text('Have a nice day.. ', style: TextStyle(fontSize: 16))
+                    // Text('Have a nice day.. ', style: TextStyle(fontSize: 16))
                   ],
                 ),
               ),

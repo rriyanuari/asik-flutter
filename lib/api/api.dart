@@ -20,6 +20,8 @@ class BaseUrl {
   // ADD LOG ABSEN
   static String urlLogAbsen = url + "api/log_absen.php";
   static String urlLogAbsenPulang = url + "api/log_absen_pulang.php";
-    //CEK TGL YANG SUDAH ADA
-    static String urlLogAbsenPerson = url + "api/data_log_person.php";
+  static String urlListAbsen = url + "api/list_absen.php";
+
+  //CEK TGL YANG SUDAH ADA
+  static String urlLogAbsenPerson = url + "api/data_log_person.php";
 }

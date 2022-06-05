@@ -44,7 +44,17 @@ class _LoginPageState extends State<LoginPage> {
     int value = data['success'];
     String pesan = data['message'];
     print(data);
+    var now = new DateTime.now();
+    var formatter = new DateFormat('yyyy-MM-dd');
+    var timer = new DateFormat('H:m:s');
+    var hour = new DateFormat('H');
 
+    String formattedDate = formatter.format(now);
+
+    String formattedtime = timer.format(now);
+    var formathour = int.parse(hour.format(now));
+    String jam_datang = "";
+    String jam_pulang = "";
     if (value == 1) {
       String statusAPI = data['status'];
       if (statusAPI == "1") {
@@ -53,17 +63,6 @@ class _LoginPageState extends State<LoginPage> {
         setState(() => statusAPI = "karyawan");
       }
       try {
-        var now = new DateTime.now();
-        var formatter = new DateFormat('yyyy-MM-dd');
-        var timer = new DateFormat('H:m:s');
-        var hour = new DateFormat('H');
-
-        String formattedDate = formatter.format(now);
-
-        String formattedtime = timer.format(now);
-        var formathour = int.parse(hour.format(now));
-        String jam_datang = "";
-        String jam_pulang = "";
         //cobaawal
         final response1 = await http.post(Uri.parse(BaseUrl.urlLogAbsenPerson),
             body: {
@@ -73,10 +72,15 @@ class _LoginPageState extends State<LoginPage> {
         final data1 = jsonDecode(response1.body);
         int value1 = data1['success'];
         String pesan = data1['message'];
+        //
+        // while (data1['date'] != formattedDate.toString()) {
+        //   ///
+        // }
+        //
         print(data1);
         if (value1 != 1) {
           print('tidak ada');
-          if (formathour >= 6 && formathour <= 12) {
+          if (formathour >= 6 && formathour < 12) {
             jam_datang = formattedtime;
             final response2 = await http
                 .post(Uri.parse(BaseUrl.urlLogAbsen.toString()), body: {
@@ -92,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
             int code = data2['succes'];
             String pesan = data2['message'];
             print(data2);
-          } else if (formathour >= 16 && formathour <= 23) {
+          } else if (formathour >= 15 && formathour <= 23) {
             jam_pulang = formattedtime;
             final response2 = await http
                 .post(Uri.parse(BaseUrl.urlLogAbsen.toString()), body: {
@@ -109,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
             String pesan = data2['message'];
             print(data2);
           }
-        } else if (formathour >= 16 && formathour <= 23) {
+        } else if (formathour >= 15 && formathour <= 23) {
           print('data ada');
           jam_pulang = formattedtime;
           final response2 = await http
@@ -134,9 +138,10 @@ class _LoginPageState extends State<LoginPage> {
         String usernameAPI = data['username'];
         String userIdAPI = data['id_user'];
         String emailAPI = data['email'];
-
+        String tanggalAPI = formattedDate;
         _loginStatus = LoginStatus.signIn;
-        savePref(value, statusAPI, usernameAPI, userIdAPI, emailAPI);
+        savePref(
+            value, statusAPI, usernameAPI, userIdAPI, emailAPI, tanggalAPI);
       });
     } else {
       print(pesan);
@@ -144,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   savePref(int val, String statusAPI, String usernameAPI, String userIdAPI,
-      String emailAPI) async {
+      String emailAPI, String tanggalAPI) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       preferences.setInt("value", val);
@@ -152,6 +157,7 @@ class _LoginPageState extends State<LoginPage> {
       preferences.setString("username", usernameAPI);
       preferences.setString("id_user", userIdAPI);
       preferences.setString("email", emailAPI);
+      preferences.setString("tanggal", tanggalAPI);
       preferences.commit();
     });
   }
