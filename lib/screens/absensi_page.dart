@@ -163,20 +163,22 @@ class _AbsenPageState extends State<AbsenPage> {
             'Daftar Absensi',
             style: TextStyle(fontWeight: FontWeight.bold),
           )),
-      body: RefreshIndicator(
-          onRefresh: _lihatData,
-          key: _refresh,
-          child: loading
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (context, i) {
-                    final data = list[i];
-                    return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: (_item(data)));
-                  },
-                )),
+      body: Container(
+        child: RefreshIndicator(
+            onRefresh: _lihatData,
+            key: _refresh,
+            child: loading
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (context, i) {
+                      final data = list[i];
+                      return Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: (_item(data)));
+                    },
+                  )),
+      ),
     );
   }
 }
