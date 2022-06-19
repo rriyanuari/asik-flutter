@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   //coba
   LoginStatus _loginStatus = LoginStatus.notSignIn;
   String? inputUsername, inputPassword;
-  final _key = new GlobalKey<FormState>();
+  final _formKey = new GlobalKey<FormState>();
   bool _secureText = true;
 
   showHide() {
@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   check() {
-    final form = _key.currentState;
+    final form = _formKey.currentState;
     if (form!.validate()) {
       form.save();
     }
@@ -162,23 +162,6 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  var value, status, username, email;
-  getPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      value = preferences.getInt('value');
-      status = preferences.getString('status');
-      username = preferences.getString('username');
-      email = preferences.getString('email');
-
-      if (value == 1) {
-        _loginStatus = LoginStatus.signIn;
-      } else {
-        _loginStatus = LoginStatus.notSignIn;
-      }
-    });
-  }
-
   signOut() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
@@ -198,7 +181,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    getPref();
   }
 
   String dropdownValue = 'Absen';
@@ -209,31 +191,20 @@ class _LoginPageState extends State<LoginPage> {
       case LoginStatus.notSignIn:
         return Scaffold(
             body: Form(
-          key: _key,
+          key: _formKey,
           // autovalidate: _autovalidate,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: EdgeInsets.only(top: 90.0, left: 20.0, right: 20.0),
             children: <Widget>[
               Container(
-                margin: EdgeInsets.only(bottom: 40.0),
-                child: Column(
-                  children: [
-                    Text(
-                      "ASIK",
-                      textAlign: TextAlign.center,
-                      textScaleFactor: 1.5,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "Aplikasi Sistem Kepegawaian",
-                      textAlign: TextAlign.center,
-                      textScaleFactor: 1.2,
-                      style: TextStyle(fontStyle: FontStyle.italic),
-                    ),
-                  ],
-                ),
-              ),
+                  margin: EdgeInsets.only(bottom: 20.0),
+                  child: Column(children: [
+                    Image.asset(
+                      "assets/img/logoAsik.png",
+                      height: 200,
+                    )
+                  ])),
               TextFormField(
                 validator: (e) {
                   if (e!.isEmpty) {
