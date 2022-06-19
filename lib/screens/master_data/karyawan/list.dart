@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:autocomplete_textfield_ns/autocomplete_textfield_ns.dart';
 
 class ListKaryawan extends StatefulWidget {
-  
   @override
   State<ListKaryawan> createState() => _ListKaryawanState();
 }
@@ -42,14 +41,14 @@ class _ListKaryawanState extends State<ListKaryawan> {
       final data = jsonDecode(response.body);
       data.forEach((api) {
         final ab = new KaryawanModel(
-            api['id_karyawan'], 
+            api['id_user'],
             api['nama_lengkap'],
             api['jenis_kelamin'],
             api['tanggal_lahir'],
             api['nama_jabatan'],
             api['tanggal_gabung'],
-            api['log_datetime']
-        );
+            api['log_datetime'],
+            api['id_jabatan']);
         list.add(ab);
       });
 
@@ -59,9 +58,9 @@ class _ListKaryawanState extends State<ListKaryawan> {
     }
   }
 
-  _proseshapus(String idKaryawan) async {
+  _proseshapus(String idUser) async {
     final response = await http
-        .post(Uri.parse(BaseUrl.urlHapusKaryawan), body: {"id_karyawan": idKaryawan});
+        .post(Uri.parse(BaseUrl.urlHapusKaryawan), body: {"id_user": idUser});
     final data = jsonDecode(response.body);
     int value = data['success'];
     String pesan = data['message'];
@@ -72,10 +71,11 @@ class _ListKaryawanState extends State<ListKaryawan> {
       });
     } else {
       print(pesan);
+      print(idUser);
     }
   }
 
-  dialogHapus(String idKaryawan) {
+  dialogHapus(String idUser) {
     showDialog(
       context: context,
       builder: (context) {
@@ -105,7 +105,7 @@ class _ListKaryawanState extends State<ListKaryawan> {
                     SizedBox(width: 25.0),
                     InkWell(
                       onTap: () {
-                        _proseshapus(idKaryawan);
+                        _proseshapus(idUser);
                       },
                       child: Text(
                         "Ya",
@@ -129,19 +129,17 @@ class _ListKaryawanState extends State<ListKaryawan> {
 
   @override
   Widget build(BuildContext context) {
-
-    Widget _item(data){
+    Widget _item(data) {
       return Container(
-        margin: EdgeInsets.symmetric(vertical: 10.0),
-        padding: EdgeInsets.symmetric(horizontal: 10.0),
-        color: Colors.amber[100],
-        child: Row(
-          children: [
+          margin: EdgeInsets.symmetric(vertical: 10.0),
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          color: Colors.amber[100],
+          child: Row(children: [
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text(data.idKaryawan + ".     "),
+                  Text(data.idUser + ".     "),
                   Text(data.namaLengkap),
                 ],
               ),
@@ -150,42 +148,37 @@ class _ListKaryawanState extends State<ListKaryawan> {
                 icon: Icon(Icons.edit),
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) =>
-                  EditKaryawan(data, _lihatData)));
-                }
-            ),
+                      builder: (context) => EditKaryawan(data, _lihatData)));
+                }),
             IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
-                  dialogHapus(data.idJabatan.toString());
+                  dialogHapus(data.idUser.toString());
                 }),
-          ]
-        )
-      );
+          ]));
     }
-   
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.amber[500],
-        title: const Text('Daftar Karyawan', style: TextStyle(fontWeight: FontWeight.bold),)
-      ),
-      body: 
-      RefreshIndicator(
-        onRefresh: _lihatData,
-        key: _refresh,
-        child: loading
-        ? Center(child: CircularProgressIndicator())
-        : ListView.builder( 
-            itemCount: list.length,
-            itemBuilder: (context, i) {
-              final data = list[i];
-              return  Container( 
-                  margin: EdgeInsets.symmetric(horizontal: 20.0),
-                  child:(_item(data))
-                );
-            },
-          ) 
-      ),
+          backgroundColor: Colors.amber[500],
+          title: const Text(
+            'Daftar Karyawan',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )),
+      body: RefreshIndicator(
+          onRefresh: _lihatData,
+          key: _refresh,
+          child: loading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (context, i) {
+                    final data = list[i];
+                    return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20.0),
+                        child: (_item(data)));
+                  },
+                )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Add your onPressed code here!
@@ -196,7 +189,7 @@ class _ListKaryawanState extends State<ListKaryawan> {
         },
         backgroundColor: Colors.amber[500],
         child: const Icon(Icons.add),
-      ), 
+      ),
     );
   }
 }

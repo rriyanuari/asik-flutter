@@ -1,6 +1,6 @@
 class BaseUrl {
-  static String url = "http://10.5.49.182/api-asik/";
-  static String paths = "http://10.5.49.182/api-asik/upload/";
+  static String url = "http://192.168.154.76/api-asik/";
+  static String paths = "http://192.168.154.76/api-asik/upload/";
 
   // LOGIN
   static String urlLogin = url + "api/login.php";

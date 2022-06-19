@@ -1,4 +1,5 @@
 import 'package:asik/screens/absensi_page.dart';
+import 'package:asik/screens/cuti_page.dart';
 import 'package:asik/screens/master_data/list_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,9 +68,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           color: Colors.white),
                     ),
                   ])));
-    }
-
-    ;
+    };
 
     Widget _menuAdmin() {
       return Column(
@@ -146,10 +145,10 @@ class _DashboardPageState extends State<DashboardPage> {
                           crossAxisSpacing: 10,
                           crossAxisCount: 2,
                           children: [
-                            _menuDashboard('Absensi', Icons.punch_clock_rounded,
-                                AbsenPage()),
                             _menuDashboard(
-                                'Cuti', Icons.file_copy, AbsenPage()),
+                              'Absensi', Icons.punch_clock_rounded, AbsenPage()),
+                            _menuDashboard(
+                                'Cuti', Icons.file_copy, CutiPage()),
                             _menuDashboard(
                                 'Perdin', Icons.bus_alert, AbsenPage()),
                             _menuDashboard(
