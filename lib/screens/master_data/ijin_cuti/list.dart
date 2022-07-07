@@ -1,21 +1,21 @@
 import 'dart:convert';
 
-import 'package:asik/screens/master_data/karyawan/add.dart';
-import 'package:asik/screens/master_data/karyawan/edit.dart';
+import 'package:asik/screens/master_data/ijin_cuti/add.dart';
+import 'package:asik/screens/master_data/ijin_cuti/edit.dart';
 import 'package:flutter/material.dart';
 import '../../../api/api.dart';
-import '../../../models/karyawan_model.dart';
+import '../../../models/ijinCuti_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:autocomplete_textfield_ns/autocomplete_textfield_ns.dart';
-import 'package:asik/screens/master_data/karyawan/list_cari.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ListKaryawan extends StatefulWidget {
+class ListIjinCuti extends StatefulWidget {
   @override
-  State<ListKaryawan> createState() => _ListKaryawanState();
+  State<ListIjinCuti> createState() => _ListIjinCutiState();
 }
 
-class _ListKaryawanState extends State<ListKaryawan> {
+class _ListIjinCutiState extends State<ListIjinCuti> {
   bool loading = true;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
 
@@ -23,8 +23,20 @@ class _ListKaryawanState extends State<ListKaryawan> {
   final GlobalKey<RefreshIndicatorState> _refresh =
       GlobalKey<RefreshIndicatorState>();
 
+  var value;
+  String status = "", username = "", email = "", tanggal = "", iduser = "";
+
   getPref() async {
-    _lihatData();
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      value = preferences.getInt('value');
+      status = preferences.getString('status')!;
+      username = preferences.getString('username')!;
+      email = preferences.getString('email')!;
+      tanggal = preferences.getString('tanggal')!;
+      iduser = preferences.getString('id_user')!;
+      _lihatData();
+    });
   }
 
   Future<void> _lihatData() async {
@@ -33,7 +45,8 @@ class _ListKaryawanState extends State<ListKaryawan> {
       loading = true;
     });
 
-    final response = await http.get(Uri.parse(BaseUrl.urlListKaryawan));
+    final response = await http
+        .post(Uri.parse(BaseUrl.urlListIjinCuti), body: {"id_user": iduser});
 
     if (response.contentLength == 2) {
       print(response);
@@ -41,15 +54,15 @@ class _ListKaryawanState extends State<ListKaryawan> {
       print(response);
       final data = jsonDecode(response.body);
       data.forEach((api) {
-        final ab = new KaryawanModel(
+        final ab = new IjinCutiModel(
             api['id_user'],
-            api['nama_lengkap'],
-            api['jenis_kelamin'],
-            api['tanggal_lahir'],
-            api['nama_jabatan'],
-            api['tanggal_gabung'],
-            api['log_datetime'],
-            api['id_jabatan']);
+            api['id_ijin'],
+            api['jenis_ijin'],
+            api['tanggal_awal'],
+            api['tanggal_akhir'],
+            api['alasan'],
+            api['persetujuan'],
+            api['nama']);
         list.add(ab);
       });
 
@@ -59,9 +72,9 @@ class _ListKaryawanState extends State<ListKaryawan> {
     }
   }
 
-  _proseshapus(String idUser) async {
+  _proseshapus(String idIjin) async {
     final response = await http
-        .post(Uri.parse(BaseUrl.urlHapusKaryawan), body: {"id_user": idUser});
+        .post(Uri.parse(BaseUrl.urlHapusIjinCuti), body: {"id_ijin": idIjin});
     final data = jsonDecode(response.body);
     int value = data['success'];
     String pesan = data['message'];
@@ -72,11 +85,11 @@ class _ListKaryawanState extends State<ListKaryawan> {
       });
     } else {
       print(pesan);
-      print(idUser);
+      print(idIjin);
     }
   }
 
-  dialogHapus(String idUser) {
+  dialogHapus(String idIjin) {
     showDialog(
       context: context,
       builder: (context) {
@@ -106,7 +119,7 @@ class _ListKaryawanState extends State<ListKaryawan> {
                     SizedBox(width: 25.0),
                     InkWell(
                       onTap: () {
-                        _proseshapus(idUser);
+                        _proseshapus(idIjin);
                       },
                       child: Text(
                         "Ya",
@@ -128,34 +141,55 @@ class _ListKaryawanState extends State<ListKaryawan> {
     getPref();
   }
 
+  var noUrut = 1;
   @override
   Widget build(BuildContext context) {
     Widget _item(data) {
       return Container(
           margin: EdgeInsets.symmetric(vertical: 10.0),
-          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
           color: Colors.amber[100],
           child: Row(children: [
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text(data.idUser + ".     "),
-                  Text(data.namaLengkap),
+                  Text("$noUrut.     "),
+                  Text(data.tanggalAwal + "  s/d   "),
+                  Text(data.tanggalAkhir),
                 ],
               ),
             ),
-            IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => EditKaryawan(data, _lihatData)));
-                }),
-            IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  dialogHapus(data.idUser.toString());
-                }),
+            Row(
+              children: [
+                if (data.persetujuan == "0") ...[
+                  IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                EditIjinCuti(data, _lihatData)));
+                      }),
+                  IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        dialogHapus(data.idIjin.toString());
+                      }),
+                ] else if (data.persetujuan == "1") ...[
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    child: const Text("Disetujui"),
+                    color: Colors.green,
+                  ),
+                ] else ...[
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    child: const Text("Ditolak"),
+                    color: Colors.red,
+                  ),
+                ]
+              ],
+            ),
           ]));
     }
 
@@ -163,21 +197,9 @@ class _ListKaryawanState extends State<ListKaryawan> {
       appBar: AppBar(
           backgroundColor: Colors.amber[500],
           title: const Text(
-            'Daftar Karyawan',
+            'Daftar Ijin/Cuti',
             style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          actions: <Widget>[
-            //jika search bernilai false maka tampilkan icon search
-            //jika search bernilai true maka tampilkan icon close
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                Navigator.of(context).push(
-                    // MaterialPageRoute(builder: (context) => SearchList()));
-                    MaterialPageRoute(builder: (context) => ListCari()));
-              },
-            )
-          ]),
+          )),
       body: RefreshIndicator(
           onRefresh: _lihatData,
           key: _refresh,
@@ -187,6 +209,7 @@ class _ListKaryawanState extends State<ListKaryawan> {
                   itemCount: list.length,
                   itemBuilder: (context, i) {
                     final data = list[i];
+                    noUrut = i + 1;
                     return Container(
                         margin: EdgeInsets.symmetric(horizontal: 20.0),
                         child: (_item(data)));
@@ -198,7 +221,7 @@ class _ListKaryawanState extends State<ListKaryawan> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => new AddKaryawan(_lihatData)));
+                  builder: (context) => new AddIjinCuti(_lihatData)));
         },
         backgroundColor: Colors.amber[500],
         child: const Icon(Icons.add),

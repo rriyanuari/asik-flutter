@@ -1,8 +1,9 @@
 import 'package:asik/screens/absensi_page.dart';
-import 'package:asik/screens/cuti_page.dart';
 import 'package:asik/screens/master_data/list_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:asik/screens/master_data/ijin_cuti/list.dart';
+import 'package:asik/screens/master_data/ijin_cuti/persetujuan.dart';
 
 class DashboardPage extends StatefulWidget {
   final VoidCallback signOut;
@@ -68,7 +69,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           color: Colors.white),
                     ),
                   ])));
-    };
+    }
+
+    ;
 
     Widget _menuAdmin() {
       return Column(
@@ -84,7 +87,12 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           ListTile(
             title: Text("Persetujuan"),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => new ListPersetujuan()));
+            },
           ),
           ListTile(
             title: Text("Laporan"),
@@ -145,10 +153,10 @@ class _DashboardPageState extends State<DashboardPage> {
                           crossAxisSpacing: 10,
                           crossAxisCount: 2,
                           children: [
+                            _menuDashboard('Absensi', Icons.punch_clock_rounded,
+                                AbsenPage()),
                             _menuDashboard(
-                              'Absensi', Icons.punch_clock_rounded, AbsenPage()),
-                            _menuDashboard(
-                                'Cuti', Icons.file_copy, CutiPage()),
+                                'Cuti', Icons.file_copy, ListIjinCuti()),
                             _menuDashboard(
                                 'Perdin', Icons.bus_alert, AbsenPage()),
                             _menuDashboard(

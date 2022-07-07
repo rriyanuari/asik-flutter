@@ -43,8 +43,7 @@ Widget _itemAbsen(String tanggal, absenMasuk, absenKeluar, ket) {
         Text('$tanggal', style: TextStyle(fontWeight: FontWeight.bold)),
         Divider(),
         Container(
-            color:
-                (absenMasuk == "-") ? Colors.red : Colors.amber[100],
+            color: (absenMasuk == "-") ? Colors.red : Colors.amber[100],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -53,8 +52,7 @@ Widget _itemAbsen(String tanggal, absenMasuk, absenKeluar, ket) {
               ],
             )),
         Container(
-            color:
-                (absenKeluar == "-") ? Colors.red : Colors.amber[100],
+            color: (absenKeluar == "-") ? Colors.red : Colors.amber[100],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -112,18 +110,19 @@ class _AbsenPageState extends State<AbsenPage> {
       final data = jsonDecode(response.body);
       data.forEach((api) {
         String? jam_masuk = api['jam_masuk'].toString();
-         (jam_masuk == "00:00:00") ? jam_masuk = "-" : jam_masuk == jam_masuk ;
-
+        (jam_masuk == "00:00:00") ? jam_masuk = "-" : jam_masuk == jam_masuk;
 
         String? jam_pulang = api['jam_pulang'].toString();
-        (jam_pulang == "00:00:00") ? jam_pulang = "-" : jam_pulang == jam_pulang ;
+        (jam_pulang == "00:00:00")
+            ? jam_pulang = "-"
+            : jam_pulang == jam_pulang;
 
         var ParseDate = DateTime.parse(api['date']);
         var formatter = new DateFormat('dd MMMM yyyy');
         String formattedDate = formatter.format(ParseDate);
 
-        final ab = new LogAbsenModel(api['id_absen'],
-            formattedDate, jam_masuk, jam_pulang, api['Keterangan']);
+        final ab = new LogAbsenModel(api['id_absen'], formattedDate, jam_masuk,
+            jam_pulang, api['Keterangan']);
         list.add(ab);
       });
 

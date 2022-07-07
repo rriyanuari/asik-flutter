@@ -1,6 +1,6 @@
 class BaseUrl {
-  static String url = "http://192.168.154.76/api-asik/";
-  static String paths = "http://192.168.154.76/api-asik/upload/";
+  static String url = "http://192.168.1.9/api-asik/";
+  static String paths = "http://192.168.1.9/api-asik/upload/";
 
   // LOGIN
   static String urlLogin = url + "api/login.php";
@@ -24,4 +24,15 @@ class BaseUrl {
 
   //CEK TGL YANG SUDAH ADA
   static String urlLogAbsenPerson = url + "api/data_log_person.php";
+
+  //ADD IJIN CUTI
+  static String urlListIjinCuti = url + "api/ijin_cuti/list.php";
+  static String urlTambahIjinCuti = url + "api/ijin_cuti/add.php";
+  static String urlUbahIjinCuti = url + "api/ijin_cuti/edit.php";
+  static String urlHapusIjinCuti = url + "api/ijin_cuti/delete.php";
+
+  //PERSETUJUAN
+  static String urlListPersetujuan = url + "api/persetujuan/list.php";
+  static String urlSetujuPersetujuan = url + "api/persetujuan/setuju.php";
+  static String urlTolakPersetujuan = url + "api/persetujuan/tolak.php";
 }

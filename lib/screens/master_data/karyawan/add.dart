@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path;
 import '../../../models/jabatan_model.dart';
 import '../../../api/api.dart';
 import 'package:asik/custom/datePicker.dart';
+// import 'package:email_validator/email_validator.dart';
 
 class AddKaryawan extends StatefulWidget {
   final VoidCallback reload;
@@ -192,7 +193,7 @@ class _AddKaryawanState extends State<AddKaryawan> {
                     alignment: Alignment.topLeft,
                     // style: valueStyle,
                     value: status,
-                    items: <String>['1', '2']
+                    items: <String>['admin', 'manajemen', 'karyawan']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,

@@ -3,21 +3,26 @@ import 'dart:convert';
 import 'package:asik/screens/master_data/karyawan/add.dart';
 import 'package:asik/screens/master_data/karyawan/edit.dart';
 import 'package:flutter/material.dart';
+import 'package:asik/screens/master_data/list_menu.dart';
 import '../../../api/api.dart';
 import '../../../models/karyawan_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:autocomplete_textfield_ns/autocomplete_textfield_ns.dart';
-import 'package:asik/screens/master_data/karyawan/list_cari.dart';
 
-class ListKaryawan extends StatefulWidget {
+class ListCari extends StatefulWidget {
+  ListCari() : super();
+
+  final String title = "";
   @override
-  State<ListKaryawan> createState() => _ListKaryawanState();
+  State<ListCari> createState() => _ListCariState();
 }
 
-class _ListKaryawanState extends State<ListKaryawan> {
+class _ListCariState extends State<ListCari> {
+  late AutoCompleteTextField searchTextField;
+  GlobalKey<AutoCompleteTextFieldState<KaryawanModel>> key = new GlobalKey();
+  static List<KaryawanModel> products = <KaryawanModel>[];
   bool loading = true;
-  GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
 
   final list = [];
   final GlobalKey<RefreshIndicatorState> _refresh =
@@ -27,36 +32,30 @@ class _ListKaryawanState extends State<ListKaryawan> {
     _lihatData();
   }
 
+  //
+
   Future<void> _lihatData() async {
-    list.clear();
-    setState(() {
-      loading = true;
-    });
-
-    final response = await http.get(Uri.parse(BaseUrl.urlListKaryawan));
-
-    if (response.contentLength == 2) {
-      print(response);
-    } else {
-      print(response);
-      final data = jsonDecode(response.body);
-      data.forEach((api) {
-        final ab = new KaryawanModel(
-            api['id_user'],
-            api['nama_lengkap'],
-            api['jenis_kelamin'],
-            api['tanggal_lahir'],
-            api['nama_jabatan'],
-            api['tanggal_gabung'],
-            api['log_datetime'],
-            api['id_jabatan']);
-        list.add(ab);
-      });
-
-      setState(() {
-        loading = false;
-      });
+    try {
+      final response = await http.get(Uri.parse(BaseUrl.urlListKaryawan));
+      if (response.statusCode == 200) {
+        products = loadUsers(response.body);
+        print('Karyawan: ${products.length}');
+        setState(() {
+          loading = false;
+        });
+      } else {
+        print("Error getting product.");
+      }
+    } catch (e) {
+      print("Error getting data api.");
     }
+  }
+
+  static List<KaryawanModel> loadUsers(String jsonString) {
+    final parsed = json.decode(jsonString).cast<Map<String, dynamic>>();
+    return parsed
+        .map<KaryawanModel>((json) => KaryawanModel.fromJson(json))
+        .toList();
   }
 
   _proseshapus(String idUser) async {
@@ -128,42 +127,44 @@ class _ListKaryawanState extends State<ListKaryawan> {
     getPref();
   }
 
+  var noUrut = 1;
+
+  Widget row(KaryawanModel product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          product.namaLengkap!,
+          style: TextStyle(fontSize: 16.0),
+        ),
+        SizedBox(
+          width: 10.0,
+        ),
+        Text(
+          product.namaJabatan!,
+        ),
+        IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EditKaryawan(product, _lihatData)));
+            }),
+        IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              dialogHapus(product.idUser.toString());
+            }),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget _item(data) {
-      return Container(
-          margin: EdgeInsets.symmetric(vertical: 10.0),
-          padding: EdgeInsets.symmetric(horizontal: 10.0),
-          color: Colors.amber[100],
-          child: Row(children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text(data.idUser + ".     "),
-                  Text(data.namaLengkap),
-                ],
-              ),
-            ),
-            IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => EditKaryawan(data, _lihatData)));
-                }),
-            IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  dialogHapus(data.idUser.toString());
-                }),
-          ]));
-    }
-
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Colors.amber[500],
           title: const Text(
-            'Daftar Karyawan',
+            'Cari Karyawan',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           actions: <Widget>[
@@ -172,9 +173,8 @@ class _ListKaryawanState extends State<ListKaryawan> {
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
-                Navigator.of(context).push(
-                    // MaterialPageRoute(builder: (context) => SearchList()));
-                    MaterialPageRoute(builder: (context) => ListCari()));
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => ListCari()));
               },
             )
           ]),
@@ -183,26 +183,34 @@ class _ListKaryawanState extends State<ListKaryawan> {
           key: _refresh,
           child: loading
               ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (context, i) {
-                    final data = list[i];
-                    return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: (_item(data)));
+              : searchTextField = AutoCompleteTextField<KaryawanModel>(
+                  key: key,
+                  clearOnSubmit: false,
+                  suggestions: products,
+                  style: TextStyle(color: Colors.black, fontSize: 16.0),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10.0, 30.0, 10.0, 20.0),
+                    hintText: "Masukan Nama",
+                    hintStyle: TextStyle(color: Colors.black),
+                  ),
+                  itemFilter: (item, query) {
+                    return item.namaLengkap!
+                        .toLowerCase()
+                        .startsWith(query.toLowerCase());
+                  },
+                  itemSorter: (a, b) {
+                    return a.namaLengkap!.compareTo(b.namaLengkap!);
+                  },
+                  itemSubmitted: (item) {
+                    setState(() {
+                      searchTextField.textField!.controller?.text =
+                          item.namaLengkap!;
+                    });
+                  },
+                  itemBuilder: (context, item) {
+                    return row(item);
                   },
                 )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => new AddKaryawan(_lihatData)));
-        },
-        backgroundColor: Colors.amber[500],
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

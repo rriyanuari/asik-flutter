@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   //coba
   LoginStatus _loginStatus = LoginStatus.notSignIn;
   String? inputUsername, inputPassword;
-  final _formKey = new GlobalKey<FormState>();
+  final _key = new GlobalKey<FormState>();
   bool _secureText = true;
 
   showHide() {
@@ -30,11 +30,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   check() {
-    final form = _formKey.currentState;
+    final form = _key.currentState;
     if (form!.validate()) {
       form.save();
+      login();
     }
-    login();
   }
 
   login() async {
@@ -72,11 +72,7 @@ class _LoginPageState extends State<LoginPage> {
         final data1 = jsonDecode(response1.body);
         int value1 = data1['success'];
         String pesan = data1['message'];
-        //
-        // while (data1['date'] != formattedDate.toString()) {
-        //   ///
-        // }
-        //
+
         print(data1);
         if (value1 != 1) {
           print('tidak ada');
@@ -144,7 +140,10 @@ class _LoginPageState extends State<LoginPage> {
             value, statusAPI, usernameAPI, userIdAPI, emailAPI, tanggalAPI);
       });
     } else {
-      print(pesan);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Username atau password salah'),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 
@@ -159,6 +158,23 @@ class _LoginPageState extends State<LoginPage> {
       preferences.setString("email", emailAPI);
       preferences.setString("tanggal", tanggalAPI);
       preferences.commit();
+    });
+  }
+
+  var value, status, username, email;
+  getPref() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      value = preferences.getInt('value');
+      status = preferences.getString('status');
+      username = preferences.getString('username');
+      email = preferences.getString('email');
+
+      if (value == 1) {
+        _loginStatus = LoginStatus.signIn;
+      } else {
+        _loginStatus = LoginStatus.notSignIn;
+      }
     });
   }
 
@@ -181,6 +197,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    getPref();
   }
 
   String dropdownValue = 'Absen';
@@ -191,24 +208,27 @@ class _LoginPageState extends State<LoginPage> {
       case LoginStatus.notSignIn:
         return Scaffold(
             body: Form(
-          key: _formKey,
+          key: _key,
           // autovalidate: _autovalidate,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: EdgeInsets.only(top: 90.0, left: 20.0, right: 20.0),
             children: <Widget>[
               Container(
-                  margin: EdgeInsets.only(bottom: 20.0),
-                  child: Column(children: [
+                margin: EdgeInsets.only(bottom: 40.0),
+                child: Column(
+                  children: [
                     Image.asset(
                       "assets/img/logoAsik.png",
                       height: 200,
                     )
-                  ])),
+                  ],
+                ),
+              ),
               TextFormField(
                 validator: (e) {
                   if (e!.isEmpty) {
-                    return "Silahkan isi username";
+                    return "Username tidak boleh kosong";
                   } else {
                     return null;
                   }
@@ -219,6 +239,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               TextFormField(
+                validator: (e) {
+                  if (e!.isEmpty) {
+                    return "Password tidak boleh kosong";
+                  } else {
+                    return null;
+                  }
+                },
                 obscureText: _secureText,
                 onSaved: (e) => inputPassword = e,
                 decoration: InputDecoration(
